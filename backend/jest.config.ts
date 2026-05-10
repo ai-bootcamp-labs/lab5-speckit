@@ -7,7 +7,7 @@ import type { Config } from 'jest';
  * Coverage thresholds enforce Constitution Principle III (≥ 80% line + branch
  * on business-logic modules).
  */
-const baseTransform = {
+const baseTransform: NonNullable<Config['transform']> = {
   '^.+\\.ts$': [
     'ts-jest',
     {
@@ -20,6 +20,7 @@ const baseTransform = {
 const config: Config = {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
+  testTimeout: 60000,
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
@@ -30,6 +31,12 @@ const config: Config = {
     '!src/**/*.d.ts',
   ],
   coverageThreshold: {
+    global: {
+      lines: 80,
+      branches: 80,
+      functions: 80,
+      statements: 80,
+    },
     'src/auth/services/': {
       lines: 80,
       branches: 80,
@@ -56,7 +63,6 @@ const config: Config = {
       displayName: 'integration',
       testMatch: ['<rootDir>/tests/integration/**/*.spec.ts'],
       testEnvironment: 'node',
-      testTimeout: 60000,
       transform: baseTransform,
       extensionsToTreatAsEsm: ['.ts'],
       moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' },
@@ -65,7 +71,6 @@ const config: Config = {
       displayName: 'e2e',
       testMatch: ['<rootDir>/tests/e2e/**/*.spec.ts'],
       testEnvironment: 'node',
-      testTimeout: 60000,
       transform: baseTransform,
       extensionsToTreatAsEsm: ['.ts'],
       moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' },
