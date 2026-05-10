@@ -222,6 +222,7 @@ Web service layout from `plan.md`. All source paths begin with `backend/`.
 - [ ] T109 Run `npm run test:cov`; confirm `src/auth/services/**` and `src/auth/domain/**` are at ≥ 80 % line and branch coverage; investigate any gaps
 - [ ] T110 Execute the full quickstart walkthrough (`specs/001-user-auth/quickstart.md`) end-to-end against a fresh `docker compose up`; tick the four "Constitution-aligned acceptance criteria" boxes there
 - [ ] T111 Run `npx tsc --noEmit` from `backend/`; confirm zero errors with strict mode
+- [ ] T112 [P] Author `backend/tests/load/auth-endpoints.load.ts` using `autocannon` (or `k6`) to drive `POST /auth/register`, `POST /auth/login`, and `GET /auth/session` against a local `npm run dev` instance; assert SC-009 thresholds (sustained ≥ 100 req/s with p95 latency < 500 ms). Add an `npm run test:load` script and a CI job that runs the load test as a smoke gate (10 s ramp, 60 s steady) so SC-009 is enforced rather than only documented.
 
 ---
 

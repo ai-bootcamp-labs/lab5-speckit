@@ -203,7 +203,7 @@ invalidates the session.
   presence to unauthenticated callers in a way that enables enumeration.
 - **FR-004**: System MUST enforce password strength rules at registration
   (minimum length 12 characters; at least three of: lowercase, uppercase, digit,
-  symbol; rejection of common/breached passwords).
+  symbol; rejection of a maintained list of common weak passwords).
 - **FR-005**: System MUST store passwords using a one-way, salted, modern
   password-hashing function; plaintext or reversible storage is forbidden.
 - **FR-006**: System MUST treat email addresses as case-insensitive for
