@@ -207,22 +207,22 @@ Web service layout from `plan.md`. All source paths begin with `backend/`.
 
 **Purpose**: Account-deletion (FR-025…028 from clarification Q5), retention job (FR-023a, FR-027, SC-010), audit-event repository, security hardening, and final docs/quickstart validation.
 
-- [ ] T097 [P] Create migration `backend/migrations/005-security-events.sql` per `data-model.md`: enums + table + indexes
-- [ ] T098 [P] Add `security_events` to the `DB` type interface
-- [ ] T099 [P] Create `backend/src/auth/repositories/audit.repo.ts` — `insertEvent(eventType, userId?, ip, outcome, reasonCode?, metadata?)`, `purgeOlderThan(date)`; refactor existing services to use this repo (replaces inline `pino`-only audit calls; logs continue via pino)
-- [ ] T100 Create `backend/src/auth/services/account-deletion.service.ts` — single transaction: mark user `disabled` + `deleted_at = now()`, call `SessionService.revokeAllForUser(reason='account_deleted')`, invalidate all unused verification + reset tokens, write `account_delete` audit event (FR-025, FR-026)
-- [ ] T101 Create `backend/src/auth/handlers/account.handler.ts` (`DELETE /auth/account`) and `backend/src/auth/routes/account.route.ts` mounted behind `requireSession` + `csrf`
-- [ ] T102 [P] Create `backend/src/infra/jobs/retention.job.ts` — daily idempotent job that (a) anonymizes `users` rows with `deleted_at < now() - 30d AND anonymized_at IS NULL` (clear `email`, `password_hash`, set `anonymized_at`), (b) deletes `security_events` rows with `occurred_at < now() - 12 months`, (c) `sessions.purgeExpired()` housekeeping; scheduled via `node-cron` (research D13)
-- [ ] T103 [P] [Test] Unit test for `AccountDeletionService` and `retention.job` (covers 30-day anonymization boundary, 12-month purge, idempotency) in `backend/tests/unit/polish/retention.spec.ts` and integration test in `backend/tests/integration/polish/retention.repo.spec.ts`
-- [ ] T104 [P] [Test] E2E test for `DELETE /auth/account` in `backend/tests/e2e/account-delete.e2e.spec.ts` — covers SC-010 (sessions revoked before response returns)
-- [ ] T105 [P] Add a "no plaintext secrets in logs" automated test in `backend/tests/unit/polish/no-plaintext-secrets.spec.ts` that runs every audit/login/error path against a captured pino transport and asserts redaction (SC-005)
-- [ ] T106 [P] Add a timing-parity test in `backend/tests/integration/polish/enumeration-parity.spec.ts` that issues 50 register-with-existing-email + 50 register-with-fresh-email + 50 login-unknown + 50 login-wrong-password and asserts the p95 deltas stay within ±100 ms (SC-006)
-- [ ] T107 [P] Run `npm run lint` and `npm run format` across the codebase; resolve any violations (Constitution I)
-- [ ] T108 [P] Verify every exported symbol in `backend/src/auth/**` carries a JSDoc block with `@param`/`@returns`/`@throws` as applicable (Constitution IV) — `eslint-plugin-jsdoc` already enforces, but do a manual audit pass on services and ports
-- [ ] T109 Run `npm run test:cov`; confirm `src/auth/services/**` and `src/auth/domain/**` are at ≥ 80 % line and branch coverage; investigate any gaps
-- [ ] T110 Execute the full quickstart walkthrough (`specs/001-user-auth/quickstart.md`) end-to-end against a fresh `docker compose up`; tick the four "Constitution-aligned acceptance criteria" boxes there
-- [ ] T111 Run `npx tsc --noEmit` from `backend/`; confirm zero errors with strict mode
-- [ ] T112 [P] Author `backend/tests/load/auth-endpoints.load.ts` using `autocannon` (or `k6`) to drive `POST /auth/register`, `POST /auth/login`, and `GET /auth/session` against a local `npm run dev` instance; assert SC-009 thresholds (sustained ≥ 100 req/s with p95 latency < 500 ms). Add an `npm run test:load` script and a CI job that runs the load test as a smoke gate (10 s ramp, 60 s steady) so SC-009 is enforced rather than only documented.
+- [X] T097 [P] Create migration `backend/migrations/005-security-events.sql` per `data-model.md`: enums + table + indexes
+- [X] T098 [P] Add `security_events` to the `DB` type interface
+- [X] T099 [P] Create `backend/src/auth/repositories/audit.repo.ts` — `insertEvent(eventType, userId?, ip, outcome, reasonCode?, metadata?)`, `purgeOlderThan(date)`; refactor existing services to use this repo (replaces inline `pino`-only audit calls; logs continue via pino)
+- [X] T100 Create `backend/src/auth/services/account-deletion.service.ts` — single transaction: mark user `disabled` + `deleted_at = now()`, call `SessionService.revokeAllForUser(reason='account_deleted')`, invalidate all unused verification + reset tokens, write `account_delete` audit event (FR-025, FR-026)
+- [X] T101 Create `backend/src/auth/handlers/account.handler.ts` (`DELETE /auth/account`) and `backend/src/auth/routes/account.route.ts` mounted behind `requireSession` + `csrf`
+- [X] T102 [P] Create `backend/src/infra/jobs/retention.job.ts` — daily idempotent job that (a) anonymizes `users` rows with `deleted_at < now() - 30d AND anonymized_at IS NULL` (clear `email`, `password_hash`, set `anonymized_at`), (b) deletes `security_events` rows with `occurred_at < now() - 12 months`, (c) `sessions.purgeExpired()` housekeeping; scheduled via `node-cron` (research D13)
+- [X] T103 [P] [Test] Unit test for `AccountDeletionService` and `retention.job` (covers 30-day anonymization boundary, 12-month purge, idempotency) in `backend/tests/unit/polish/retention.spec.ts` and integration test in `backend/tests/integration/polish/retention.repo.spec.ts`
+- [X] T104 [P] [Test] E2E test for `DELETE /auth/account` in `backend/tests/e2e/account-delete.e2e.spec.ts` — covers SC-010 (sessions revoked before response returns)
+- [X] T105 [P] Add a "no plaintext secrets in logs" automated test in `backend/tests/unit/polish/no-plaintext-secrets.spec.ts` that runs every audit/login/error path against a captured pino transport and asserts redaction (SC-005)
+- [X] T106 [P] Add a timing-parity test in `backend/tests/integration/polish/enumeration-parity.spec.ts` that issues 50 register-with-existing-email + 50 register-with-fresh-email + 50 login-unknown + 50 login-wrong-password and asserts the p95 deltas stay within ±100 ms (SC-006)
+- [X] T107 [P] Run `npm run lint` and `npm run format` across the codebase; resolve any violations (Constitution I)
+- [X] T108 [P] Verify every exported symbol in `backend/src/auth/**` carries a JSDoc block with `@param`/`@returns`/`@throws` as applicable (Constitution IV) — `eslint-plugin-jsdoc` already enforces, but do a manual audit pass on services and ports
+- [X] T109 Run `npm run test:cov`; confirm `src/auth/services/**` and `src/auth/domain/**` are at ≥ 80 % line and branch coverage; investigate any gaps
+- [X] T110 Execute the full quickstart walkthrough (`specs/001-user-auth/quickstart.md`) end-to-end against a fresh `docker compose up`; tick the four "Constitution-aligned acceptance criteria" boxes there
+- [X] T111 Run `npx tsc --noEmit` from `backend/`; confirm zero errors with strict mode
+- [X] T112 [P] Author `backend/tests/load/auth-endpoints.load.ts` using `autocannon` (or `k6`) to drive `POST /auth/register`, `POST /auth/login`, and `GET /auth/session` against a local `npm run dev` instance; assert SC-009 thresholds (sustained ≥ 100 req/s with p95 latency < 500 ms). Add an `npm run test:load` script and a CI job that runs the load test as a smoke gate (10 s ramp, 60 s steady) so SC-009 is enforced rather than only documented.
 
 ---
 

@@ -68,6 +68,31 @@ export class InMemoryUsersRepo implements Partial<UsersRepository> {
       }
     }
   }
+
+  /** @inheritdoc */
+  async softDelete(id: UserId, now: Date): Promise<void> {
+    const u = this.rows.find((r) => r.id === id);
+    if (u) {
+      u.status = 'disabled';
+      u.deletedAt = now;
+      u.updatedAt = now;
+    }
+  }
+
+  /** @inheritdoc */
+  async anonymizeDeletedOlderThan(olderThan: Date, now: Date): Promise<number> {
+    let count = 0;
+    for (const u of this.rows) {
+      if (u.deletedAt && u.deletedAt < olderThan && u.anonymizedAt === null) {
+        u.email = '';
+        u.passwordHash = '';
+        u.anonymizedAt = now;
+        u.updatedAt = now;
+        count += 1;
+      }
+    }
+    return count;
+  }
 }
 
 /**

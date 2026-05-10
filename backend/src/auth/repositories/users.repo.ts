@@ -138,4 +138,41 @@ export class UsersRepository {
       .where('id', '=', id)
       .execute();
   }
+
+  /**
+   * Soft-delete a user: flip to `disabled` and stamp `deleted_at`.
+   * @param id - User id.
+   * @param now - Deletion timestamp.
+   * @returns Resolves on success.
+   */
+  async softDelete(id: UserId, now: Date): Promise<void> {
+    await this.db
+      .updateTable('auth.users')
+      .set({ status: 'disabled', deleted_at: now, updated_at: now })
+      .where('id', '=', id)
+      .execute();
+  }
+
+  /**
+   * Anonymize all users whose `deleted_at` is older than the supplied cutoff
+   * and that have not yet been anonymized. Clears `email` and `password_hash`
+   * and stamps `anonymized_at` (FR-027).
+   * @param olderThan - Deletion cutoff (rows with `deleted_at < olderThan` are anonymized).
+   * @param now - Stamp written into `anonymized_at`.
+   * @returns Number of rows anonymized.
+   */
+  async anonymizeDeletedOlderThan(olderThan: Date, now: Date): Promise<number> {
+    const result = await this.db
+      .updateTable('auth.users')
+      .set({
+        email: '',
+        password_hash: '',
+        anonymized_at: now,
+        updated_at: now,
+      })
+      .where('deleted_at', '<', olderThan)
+      .where('anonymized_at', 'is', null)
+      .executeTakeFirst();
+    return Number(result.numUpdatedRows ?? 0);
+  }
 }
