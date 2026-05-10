@@ -27,15 +27,15 @@ Web service layout from `plan.md`. All source paths begin with `backend/`.
 
 **Purpose**: Project initialization, tooling, and CI baseline. NO product code yet.
 
-- [ ] T001 Create `backend/` project skeleton (folders: `src/auth/{routes,handlers,services,repositories,domain,middleware,adapters,schemas}`, `src/infra/{jobs}`, `migrations/`, `tests/{unit,integration,e2e}`) per the structure in `plan.md`
-- [ ] T002 Initialize Node project: create `backend/package.json` with TypeScript 5.4, Node 20 engines field; install runtime deps (`express`, `pg`, `kysely`, `jsonwebtoken`, `bcrypt`, `cookie-parser`, `helmet`, `express-rate-limit`, `zod`, `pino`, `nodemailer`, `node-cron`, `node-pg-migrate`) and dev deps (`typescript`, `ts-node-dev`, `@types/*`, `jest`, `ts-jest`, `supertest`, `@types/supertest`, `testcontainers`, `eslint`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, `eslint-plugin-jsdoc`, `prettier`)
-- [ ] T003 [P] Author `backend/tsconfig.json` with `strict: true`, `noImplicitOverride`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noFallthroughCasesInSwitch`, `target: ES2022`, `module: NodeNext`, `outDir: dist`
-- [ ] T004 [P] Author `backend/.eslintrc.cjs` extending `@typescript-eslint/strict` and `plugin:jsdoc/recommended-typescript-error`; require JSDoc on all exported symbols (Constitution Principle IV)
-- [ ] T005 [P] Author `backend/.prettierrc.json` (single-quote, semicolons, 100-col print width) and `backend/.prettierignore`
-- [ ] T006 [P] Author `backend/jest.config.ts` using `ts-jest`, projects for unit/integration/e2e, and `coverageThreshold` enforcing ≥ 80 % line and branch on `src/auth/services/**/*.ts` and `src/auth/domain/**/*.ts` (Constitution Principle III)
-- [ ] T007 [P] Author `backend/.env.example` with the variables listed in `quickstart.md` (`DATABASE_URL`, `JWT_SECRET`, `COOKIE_DOMAIN`, `SMTP_URL`, `PASSWORD_BCRYPT_COST`, `PORT`, `NODE_ENV`)
-- [ ] T008 [P] Author `backend/docker-compose.yml` with services `postgres:16` (port 5432) and `mailhog/mailhog` (ports 1025, 8025) for local development per `quickstart.md`
-- [ ] T009 [P] Author `backend/package.json` npm scripts: `dev`, `build`, `start`, `lint`, `format`, `test`, `test:cov`, `test:e2e`, `db:migrate`, `db:rollback`
+- [X] T001 Create `backend/` project skeleton (folders: `src/auth/{routes,handlers,services,repositories,domain,middleware,adapters,schemas}`, `src/infra/{jobs}`, `migrations/`, `tests/{unit,integration,e2e}`) per the structure in `plan.md`
+- [X] T002 Initialize Node project: create `backend/package.json` with TypeScript 5.4, Node 20 engines field; install runtime deps (`express`, `pg`, `kysely`, `jsonwebtoken`, `bcrypt`, `cookie-parser`, `helmet`, `express-rate-limit`, `zod`, `pino`, `nodemailer`, `node-cron`, `node-pg-migrate`) and dev deps (`typescript`, `ts-node-dev`, `@types/*`, `jest`, `ts-jest`, `supertest`, `@types/supertest`, `testcontainers`, `eslint`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, `eslint-plugin-jsdoc`, `prettier`)
+- [X] T003 [P] Author `backend/tsconfig.json` with `strict: true`, `noImplicitOverride`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noFallthroughCasesInSwitch`, `target: ES2022`, `module: NodeNext`, `outDir: dist`
+- [X] T004 [P] Author `backend/.eslintrc.cjs` extending `@typescript-eslint/strict` and `plugin:jsdoc/recommended-typescript-error`; require JSDoc on all exported symbols (Constitution Principle IV)
+- [X] T005 [P] Author `backend/.prettierrc.json` (single-quote, semicolons, 100-col print width) and `backend/.prettierignore`
+- [X] T006 [P] Author `backend/jest.config.ts` using `ts-jest`, projects for unit/integration/e2e, and `coverageThreshold` enforcing ≥ 80 % line and branch on `src/auth/services/**/*.ts` and `src/auth/domain/**/*.ts` (Constitution Principle III)
+- [X] T007 [P] Author `backend/.env.example` with the variables listed in `quickstart.md` (`DATABASE_URL`, `JWT_SECRET`, `COOKIE_DOMAIN`, `SMTP_URL`, `PASSWORD_BCRYPT_COST`, `PORT`, `NODE_ENV`)
+- [X] T008 [P] Author `backend/docker-compose.yml` with services `postgres:16` (port 5432) and `mailhog/mailhog` (ports 1025, 8025) for local development per `quickstart.md`
+- [X] T009 [P] Author `backend/package.json` npm scripts: `dev`, `build`, `start`, `lint`, `format`, `test`, `test:cov`, `test:e2e`, `db:migrate`, `db:rollback`
 
 **Checkpoint**: `npm install`, `npm run lint`, `npm test` (with no tests yet) and `tsc --noEmit` all succeed against an empty source tree.
 
@@ -47,19 +47,19 @@ Web service layout from `plan.md`. All source paths begin with `backend/`.
 
 **⚠️ CRITICAL**: No US1–US4 work begins until Phase 2 is complete.
 
-- [ ] T010 Create `backend/src/infra/config.ts` exporting a `loadConfig()` function that parses `process.env` through a Zod schema and returns a typed `AppConfig` (fail-fast on invalid env)
-- [ ] T011 [P] Create `backend/src/infra/logger.ts` exporting a `pino` instance with redaction paths `password`, `passwordHash`, `token`, `cookie.session`, `headers.cookie` (research D9, SC-005)
-- [ ] T012 Create `backend/src/infra/db.ts` exporting a singleton `Kysely<DB>` instance bound to a `pg.Pool` constructed from `AppConfig.DATABASE_URL`; export the `DB` interface scaffold (tables added in story-specific tasks)
-- [ ] T013 Create migration `backend/migrations/000-extensions.sql` enabling `pgcrypto` and `citext`, and creating the `auth` schema
-- [ ] T014 [P] Create `backend/src/auth/domain/errors.ts` defining a base `AuthError` and typed subclasses: `ValidationError`, `InvalidCredentialsError`, `AccountPendingError`, `AccountLockedError`, `TokenExpiredError`, `TokenAlreadyUsedError`, `RateLimitedError`, `NotFoundError`, `CsrfError` (Constitution: typed errors)
-- [ ] T015 [P] Create `backend/src/auth/adapters/clock.port.ts` defining a `Clock` interface (`now(): Date`) and a `SystemClock` implementation; used by services to make time injectable for tests (research D12)
-- [ ] T016 [P] Create `backend/src/auth/adapters/email.port.ts` defining the `EmailPort` interface (`sendVerification(to, token, url)`, `sendPasswordReset(to, token, url)`) and a `NodemailerEmailAdapter` implementation backed by `SMTP_URL` (research D7)
-- [ ] T017 [P] Create `backend/src/auth/adapters/token.port.ts` defining helpers for generating cryptographically-random opaque tokens (32 bytes base64url) and SHA-256 hashing them for storage (data-model: `token_hash` columns)
-- [ ] T018 Create `backend/src/auth/middleware/error-mapper.ts` Express error-handling middleware that maps `AuthError` subclasses to HTTP status codes per `contracts/auth-api.openapi.yaml` and emits structured log lines via `pino`
-- [ ] T019 [P] Create `backend/src/server.ts` composing the Express app: `helmet`, `cookie-parser`, JSON body limit (100 KB), trust-proxy, `requestId` middleware, error-mapper; mount placeholder router from `auth/index.ts`
-- [ ] T020 [P] Create `backend/src/auth/index.ts` composition root: a `buildAuthRouter(deps)` function that wires repos → services → routes; exports the Express router. Initially returns an empty router; user-story phases register routes onto it.
-- [ ] T021 [P] [Test] Author `backend/tests/integration/_helpers/db.ts` that starts a `testcontainers` Postgres container, runs migrations, and exposes a `withDb(test)` helper for integration tests
-- [ ] T022 [P] [Test] Author `backend/tests/unit/_helpers/fakes.ts` providing `FakeClock` (advances on demand) and `FakeEmailAdapter` (records sent messages in memory) for unit tests
+- [X] T010 Create `backend/src/infra/config.ts` exporting a `loadConfig()` function that parses `process.env` through a Zod schema and returns a typed `AppConfig` (fail-fast on invalid env)
+- [X] T011 [P] Create `backend/src/infra/logger.ts` exporting a `pino` instance with redaction paths `password`, `passwordHash`, `token`, `cookie.session`, `headers.cookie` (research D9, SC-005)
+- [X] T012 Create `backend/src/infra/db.ts` exporting a singleton `Kysely<DB>` instance bound to a `pg.Pool` constructed from `AppConfig.DATABASE_URL`; export the `DB` interface scaffold (tables added in story-specific tasks)
+- [X] T013 Create migration `backend/migrations/000-extensions.sql` enabling `pgcrypto` and `citext`, and creating the `auth` schema
+- [X] T014 [P] Create `backend/src/auth/domain/errors.ts` defining a base `AuthError` and typed subclasses: `ValidationError`, `InvalidCredentialsError`, `AccountPendingError`, `AccountLockedError`, `TokenExpiredError`, `TokenAlreadyUsedError`, `RateLimitedError`, `NotFoundError`, `CsrfError` (Constitution: typed errors)
+- [X] T015 [P] Create `backend/src/auth/adapters/clock.port.ts` defining a `Clock` interface (`now(): Date`) and a `SystemClock` implementation; used by services to make time injectable for tests (research D12)
+- [X] T016 [P] Create `backend/src/auth/adapters/email.port.ts` defining the `EmailPort` interface (`sendVerification(to, token, url)`, `sendPasswordReset(to, token, url)`) and a `NodemailerEmailAdapter` implementation backed by `SMTP_URL` (research D7)
+- [X] T017 [P] Create `backend/src/auth/adapters/token.port.ts` defining helpers for generating cryptographically-random opaque tokens (32 bytes base64url) and SHA-256 hashing them for storage (data-model: `token_hash` columns)
+- [X] T018 Create `backend/src/auth/middleware/error-mapper.ts` Express error-handling middleware that maps `AuthError` subclasses to HTTP status codes per `contracts/auth-api.openapi.yaml` and emits structured log lines via `pino`
+- [X] T019 [P] Create `backend/src/server.ts` composing the Express app: `helmet`, `cookie-parser`, JSON body limit (100 KB), trust-proxy, `requestId` middleware, error-mapper; mount placeholder router from `auth/index.ts`
+- [X] T020 [P] Create `backend/src/auth/index.ts` composition root: a `buildAuthRouter(deps)` function that wires repos → services → routes; exports the Express router. Initially returns an empty router; user-story phases register routes onto it.
+- [X] T021 [P] [Test] Author `backend/tests/integration/_helpers/db.ts` that starts a `testcontainers` Postgres container, runs migrations, and exposes a `withDb(test)` helper for integration tests
+- [X] T022 [P] [Test] Author `backend/tests/unit/_helpers/fakes.ts` providing `FakeClock` (advances on demand) and `FakeEmailAdapter` (records sent messages in memory) for unit tests
 
 **Checkpoint**: `npm test` runs (no tests yet); `npm run dev` boots the empty server, `helmet` headers appear, `/auth` returns 404. Foundation ready — US1–US4 may proceed in parallel.
 
