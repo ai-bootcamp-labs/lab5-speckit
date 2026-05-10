@@ -183,21 +183,21 @@ Web service layout from `plan.md`. All source paths begin with `backend/`.
 
 ### Tests for User Story 4 ⚠️ Write FIRST, ensure they FAIL
 
-- [ ] T085 [P] [US4] Contract test for `POST /auth/logout` (204/401, requires CSRF) in `backend/tests/integration/us4/logout.contract.spec.ts`
-- [ ] T086 [P] [US4] Unit test for session-expiry behaviour using `FakeClock`: live within 24 h, expired at 24 h 0 m + 61 s, accepted at 24 h 0 m + 30 s (within leeway), in `backend/tests/unit/us4/session-expiry.spec.ts`
-- [ ] T087 [P] [US4] Unit test for `LogoutService` (revokes only the calling session, leaves siblings live, clears cookies on response) in `backend/tests/unit/us4/logout.service.spec.ts`
-- [ ] T088 [P] [US4] Integration test for `purgeExpired` and concurrent multi-session behaviour in `backend/tests/integration/us4/sessions-multi.spec.ts`
-- [ ] T089 [P] [US4] E2E test covering Story 4 acceptance scenarios 1–4 in `backend/tests/e2e/us4-session-expiry.e2e.spec.ts`
-- [ ] T090 [US4] Run new tests; confirm they FAIL
+- [X] T085 [P] [US4] Contract test for `POST /auth/logout` (204/401, requires CSRF) in `backend/tests/integration/us4/logout.contract.spec.ts`
+- [X] T086 [P] [US4] Unit test for session-expiry behaviour using `FakeClock`: live within 24 h, expired at 24 h 0 m + 61 s, accepted at 24 h 0 m + 30 s (within leeway), in `backend/tests/unit/us4/session-expiry.spec.ts`
+- [X] T087 [P] [US4] Unit test for `LogoutService` (revokes only the calling session, leaves siblings live, clears cookies on response) in `backend/tests/unit/us4/logout.service.spec.ts`
+- [X] T088 [P] [US4] Integration test for `purgeExpired` and concurrent multi-session behaviour in `backend/tests/integration/us4/sessions-multi.spec.ts`
+- [X] T089 [P] [US4] E2E test covering Story 4 acceptance scenarios 1–4 in `backend/tests/e2e/us4-session-expiry.e2e.spec.ts`
+- [X] T090 [US4] Run new tests; confirm they FAIL
 
 ### Implementation for User Story 4
 
-- [ ] T091 [P] [US4] Create `backend/src/auth/services/logout.service.ts` — revokes the session id on `req.session` with reason `'logout'`, emits `logout` audit event
-- [ ] T092 [P] [US4] Create `backend/src/auth/handlers/logout.handler.ts` — invokes `LogoutService.logout`, clears `auth_session` and `csrf_token` cookies on the response (Set-Cookie expired)
-- [ ] T093 [US4] Create `backend/src/auth/routes/logout.route.ts` mounted behind `requireSession` + `csrf` middleware
-- [ ] T094 [US4] Extend `SessionService.validate` to use the injected `Clock` for the 24 h + 60 s leeway boundary check (already covered by T062; add explicit unit coverage if missing)
-- [ ] T095 [US4] Wire US4 dependencies into the composition root
-- [ ] T096 [US4] Run all US1–US4 tests; confirm green; coverage gate still ≥ 80 %
+- [X] T091 [P] [US4] Create `backend/src/auth/services/logout.service.ts` — revokes the session id on `req.session` with reason `'logout'`, emits `logout` audit event
+- [X] T092 [P] [US4] Create `backend/src/auth/handlers/logout.handler.ts` — invokes `LogoutService.logout`, clears `auth_session` and `csrf_token` cookies on the response (Set-Cookie expired)
+- [X] T093 [US4] Create `backend/src/auth/routes/logout.route.ts` mounted behind `requireSession` + `csrf` middleware
+- [X] T094 [US4] Extend `SessionService.validate` to use the injected `Clock` for the 24 h + 60 s leeway boundary check (already covered by T062; add explicit unit coverage if missing)
+- [X] T095 [US4] Wire US4 dependencies into the composition root
+- [X] T096 [US4] Run all US1–US4 tests; confirm green; coverage gate still ≥ 80 %
 
 **Checkpoint**: All four user stories pass independently and together.
 

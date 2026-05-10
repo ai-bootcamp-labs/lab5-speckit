@@ -16,10 +16,12 @@ import { SessionService } from './services/session.service.js';
 import { LoginService } from './services/login.service.js';
 import { ThrottleService } from './services/throttle.service.js';
 import { PasswordResetService } from './services/password-reset.service.js';
+import { LogoutService } from './services/logout.service.js';
 import { buildRegisterRouter } from './routes/register.route.js';
 import { buildVerifyRouter } from './routes/verify.route.js';
 import { buildLoginRouter, buildSessionRouter } from './routes/login.route.js';
 import { buildPasswordResetRouter } from './routes/password-reset.route.js';
+import { buildLogoutRouter } from './routes/logout.route.js';
 
 /**
  * Bag of dependencies the auth router needs. User-story phases widen this
@@ -106,14 +108,16 @@ export function buildAuthRouter(deps: AuthDependencies): Router {
     dummyHash,
   });
 
+  const logoutService = new LogoutService(sessionService, logger);
+
   // Routes
   router.use(buildRegisterRouter(registrationService));
   router.use(buildVerifyRouter(verificationService));
   router.use(buildLoginRouter(loginService, isProduction));
   router.use(buildSessionRouter(sessionService));
   router.use(buildPasswordResetRouter(passwordResetService));
+  router.use(buildLogoutRouter(logoutService, sessionService, isProduction));
   // Future phases mount additional routers here:
-  //   T093 — logout
   //   T101 — account delete
 
   return router;
