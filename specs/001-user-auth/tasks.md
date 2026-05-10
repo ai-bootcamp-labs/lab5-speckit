@@ -153,23 +153,23 @@ Web service layout from `plan.md`. All source paths begin with `backend/`.
 
 ### Tests for User Story 3 ⚠️ Write FIRST, ensure they FAIL
 
-- [ ] T071 [P] [US3] Contract tests for `POST /auth/password-reset/request` (always 202) and `POST /auth/password-reset/confirm` (204/400/410) in `backend/tests/integration/us3/reset.contract.spec.ts`
-- [ ] T072 [P] [US3] Unit test for `PasswordResetService.request`: known + unknown email both produce identical 202 response and indistinguishable timing within 100 ms; only known email triggers `EmailPort.sendPasswordReset` (FR-014, SC-006) — `backend/tests/unit/us3/reset-request.service.spec.ts`
-- [ ] T073 [P] [US3] Unit test for `PasswordResetService.confirm`: success path updates password hash + revokes all sessions + invalidates token + (if pending) flips user to active; expired token → 410; reused token → 410; weak new password → 400 — `backend/tests/unit/us3/reset-confirm.service.spec.ts`
-- [ ] T074 [P] [US3] Integration test for `password_resets` repo (insert, find by hash, mark used) in `backend/tests/integration/us3/reset-repo.spec.ts`
-- [ ] T075 [P] [US3] E2E test covering Story 3 acceptance scenarios 1–4 in `backend/tests/e2e/us3-password-reset.e2e.spec.ts`
-- [ ] T076 [US3] Run new tests; confirm they all FAIL
+- [X] T071 [P] [US3] Contract tests for `POST /auth/password-reset/request` (always 202) and `POST /auth/password-reset/confirm` (204/400/410) in `backend/tests/integration/us3/reset.contract.spec.ts`
+- [X] T072 [P] [US3] Unit test for `PasswordResetService.request`: known + unknown email both produce identical 202 response and indistinguishable timing within 100 ms; only known email triggers `EmailPort.sendPasswordReset` (FR-014, SC-006) — `backend/tests/unit/us3/reset-request.service.spec.ts`
+- [X] T073 [P] [US3] Unit test for `PasswordResetService.confirm`: success path updates password hash + revokes all sessions + invalidates token + (if pending) flips user to active; expired token → 410; reused token → 410; weak new password → 400 — `backend/tests/unit/us3/reset-confirm.service.spec.ts`
+- [X] T074 [P] [US3] Integration test for `password_resets` repo (insert, find by hash, mark used) in `backend/tests/integration/us3/reset-repo.spec.ts`
+- [X] T075 [P] [US3] E2E test covering Story 3 acceptance scenarios 1–4 in `backend/tests/e2e/us3-password-reset.e2e.spec.ts`
+- [X] T076 [US3] Run new tests; confirm they all FAIL
 
 ### Implementation for User Story 3
 
-- [ ] T077 [P] [US3] Create migration `backend/migrations/004-password-reset.sql` per `data-model.md`
-- [ ] T078 [P] [US3] Add `password_resets` to `DB` type interface
-- [ ] T079 [P] [US3] Create `backend/src/auth/schemas/reset.schema.ts` — Zod schemas for `EmailOnlyRequest` (reuses) and `PasswordResetConfirmRequest`
-- [ ] T080 [US3] Create `backend/src/auth/repositories/reset.repo.ts` — `insertToken`, `findByTokenHash`, `markUsed`, `invalidateAllForUser`
-- [ ] T081 [US3] Create `backend/src/auth/services/password-reset.service.ts` — `request(email)`: always returns generic acceptance, only sends email when account exists; `confirm(token, newPassword)` is a single transaction that updates `users.password_hash`, calls `SessionService.revokeAllForUser(reason='password_reset')`, marks token used, and (if user is pending) sets `verified_at` + flips status to `active`; emits `password_reset_request` and `password_reset_complete` audit events (FR-013…017, FR-006c)
-- [ ] T082 [US3] Create `backend/src/auth/handlers/password-reset.handler.ts` (request + confirm) and `backend/src/auth/routes/password-reset.route.ts` with per-IP and per-email rate limits (5 req / 15 min)
-- [ ] T083 [US3] Wire US3 dependencies into the composition root
-- [ ] T084 [US3] Run all US1+US2+US3 tests; confirm green; coverage gate still ≥ 80 % on services/domain
+- [X] T077 [P] [US3] Create migration `backend/migrations/004-password-reset.sql` per `data-model.md`
+- [X] T078 [P] [US3] Add `password_resets` to `DB` type interface
+- [X] T079 [P] [US3] Create `backend/src/auth/schemas/reset.schema.ts` — Zod schemas for `EmailOnlyRequest` (reuses) and `PasswordResetConfirmRequest`
+- [X] T080 [US3] Create `backend/src/auth/repositories/reset.repo.ts` — `insertToken`, `findByTokenHash`, `markUsed`, `invalidateAllForUser`
+- [X] T081 [US3] Create `backend/src/auth/services/password-reset.service.ts` — `request(email)`: always returns generic acceptance, only sends email when account exists; `confirm(token, newPassword)` is a single transaction that updates `users.password_hash`, calls `SessionService.revokeAllForUser(reason='password_reset')`, marks token used, and (if user is pending) sets `verified_at` + flips status to `active`; emits `password_reset_request` and `password_reset_complete` audit events (FR-013…017, FR-006c)
+- [X] T082 [US3] Create `backend/src/auth/handlers/password-reset.handler.ts` (request + confirm) and `backend/src/auth/routes/password-reset.route.ts` with per-IP and per-email rate limits (5 req / 15 min)
+- [X] T083 [US3] Wire US3 dependencies into the composition root
+- [X] T084 [US3] Run all US1+US2+US3 tests; confirm green; coverage gate still ≥ 80 % on services/domain
 
 **Checkpoint**: Story 3 fully functional independently of Story 4.
 

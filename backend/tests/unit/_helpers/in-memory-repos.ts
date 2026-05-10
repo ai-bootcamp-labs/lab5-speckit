@@ -55,6 +55,19 @@ export class InMemoryUsersRepo implements Partial<UsersRepository> {
   async existsByEmail(email: string): Promise<boolean> {
     return this.rows.some((u) => u.email === email.toLowerCase() && u.anonymizedAt === null);
   }
+
+  /** @inheritdoc */
+  async updatePasswordHash(id: UserId, passwordHash: string, now: Date): Promise<void> {
+    const u = this.rows.find((r) => r.id === id);
+    if (u) {
+      u.passwordHash = passwordHash;
+      u.updatedAt = now;
+      if (u.status === 'pending') {
+        u.status = 'active';
+        u.verifiedAt = now;
+      }
+    }
+  }
 }
 
 /**

@@ -115,4 +115,27 @@ export class UsersRepository {
       .executeTakeFirst();
     return row !== undefined;
   }
+
+  /**
+   * Update the password hash for a user. If the user is currently `pending`,
+   * also flips them to `active` and stamps `verified_at` (per Story 3 edge
+   * case: a pending user who completes a password reset is treated as having
+   * verified their email).
+   * @param id - User id.
+   * @param passwordHash - New bcrypt hash.
+   * @param now - Update timestamp.
+   * @returns Resolves on success.
+   */
+  async updatePasswordHash(id: UserId, passwordHash: string, now: Date): Promise<void> {
+    await this.db
+      .updateTable('auth.users')
+      .set((eb) => ({
+        password_hash: passwordHash,
+        updated_at: now,
+        status: eb.case().when('status', '=', 'pending').then('active' as UserStatus).else(eb.ref('status')).end(),
+        verified_at: eb.case().when('status', '=', 'pending').then(now).else(eb.ref('verified_at')).end(),
+      }))
+      .where('id', '=', id)
+      .execute();
+  }
 }
