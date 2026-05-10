@@ -73,33 +73,33 @@ Web service layout from `plan.md`. All source paths begin with `backend/`.
 
 ### Tests for User Story 1 ⚠️ Write FIRST, ensure they FAIL
 
-- [ ] T023 [P] [US1] Contract test against `contracts/auth-api.openapi.yaml` for `POST /auth/register` in `backend/tests/integration/us1/register.contract.spec.ts` — validates request/response schemas and status codes 201/400/409/429
-- [ ] T024 [P] [US1] Contract test for `POST /auth/verify-email` and `POST /auth/verify-email/resend` in `backend/tests/integration/us1/verify.contract.spec.ts` — validates 204/400/410/202/429
-- [ ] T025 [P] [US1] Unit test for password-strength validator (length ≥ 12; ≥ 3 of lower/upper/digit/symbol; rejects common passwords) in `backend/tests/unit/us1/password-policy.spec.ts`
-- [ ] T026 [P] [US1] Unit test for `RegistrationService` (creates pending user, persists bcrypt hash, issues verification token, returns generic 409 on duplicate without leaking timing) in `backend/tests/unit/us1/registration.service.spec.ts`
-- [ ] T027 [P] [US1] Unit test for `VerificationService` covering: success, expired token (→ `TokenExpiredError`), reused token (→ `TokenAlreadyUsedError`), tampered hash, and clock-skew leeway in `backend/tests/unit/us1/verification.service.spec.ts`
-- [ ] T028 [P] [US1] Integration test for `users` + `email_verifications` repository roundtrip against `testcontainers` Postgres in `backend/tests/integration/us1/users-repo.spec.ts` — covers unique-email partial index, FK cascade
-- [ ] T029 [P] [US1] E2E happy-path & "verification first" rejection test in `backend/tests/e2e/us1-register-verify.e2e.spec.ts` — exercises Story 1 acceptance scenarios 1, 2, 3 from spec
-- [ ] T030 [US1] Run the new tests; confirm they all FAIL for the right reasons (missing implementation), not for setup errors
+- [X] T023 [P] [US1] Contract test against `contracts/auth-api.openapi.yaml` for `POST /auth/register` in `backend/tests/integration/us1/register.contract.spec.ts` — validates request/response schemas and status codes 201/400/409/429
+- [X] T024 [P] [US1] Contract test for `POST /auth/verify-email` and `POST /auth/verify-email/resend` in `backend/tests/integration/us1/verify.contract.spec.ts` — validates 204/400/410/202/429
+- [X] T025 [P] [US1] Unit test for password-strength validator (length ≥ 12; ≥ 3 of lower/upper/digit/symbol; rejects common passwords) in `backend/tests/unit/us1/password-policy.spec.ts`
+- [X] T026 [P] [US1] Unit test for `RegistrationService` (creates pending user, persists bcrypt hash, issues verification token, returns generic 409 on duplicate without leaking timing) in `backend/tests/unit/us1/registration.service.spec.ts`
+- [X] T027 [P] [US1] Unit test for `VerificationService` covering: success, expired token (→ `TokenExpiredError`), reused token (→ `TokenAlreadyUsedError`), tampered hash, and clock-skew leeway in `backend/tests/unit/us1/verification.service.spec.ts`
+- [X] T028 [P] [US1] Integration test for `users` + `email_verifications` repository roundtrip against `testcontainers` Postgres in `backend/tests/integration/us1/users-repo.spec.ts` — covers unique-email partial index, FK cascade
+- [X] T029 [P] [US1] E2E happy-path & "verification first" rejection test in `backend/tests/e2e/us1-register-verify.e2e.spec.ts` — exercises Story 1 acceptance scenarios 1, 2, 3 from spec
+- [X] T030 [US1] Run the new tests; confirm they all FAIL for the right reasons (missing implementation), not for setup errors
 
 ### Implementation for User Story 1
 
-- [ ] T031 [P] [US1] Create migration `backend/migrations/001-users.sql` per `data-model.md`: `auth.user_status` enum, `auth.users` table, partial unique index on `lower(email)`, supporting indexes
-- [ ] T032 [P] [US1] Create migration `backend/migrations/003-email-verification.sql` per `data-model.md`: `auth.email_verifications` table with FK cascade
-- [ ] T033 [P] [US1] Add `users` and `email_verifications` table interfaces to the `DB` type in `backend/src/auth/repositories/db-types.ts`
-- [ ] T034 [P] [US1] Create `backend/src/auth/domain/user.ts` — pure types: `User`, `UserStatus`, factory `newPendingUser()` and state-transition functions (no I/O)
-- [ ] T035 [P] [US1] Create `backend/src/auth/schemas/register.schema.ts` — Zod schema for the `RegisterRequest` body matching the OpenAPI contract; export inferred TS type
-- [ ] T036 [P] [US1] Create `backend/src/auth/schemas/verify.schema.ts` — Zod schemas for `VerifyEmailRequest` and `EmailOnlyRequest`
-- [ ] T037 [P] [US1] Create `backend/src/auth/domain/password-policy.ts` — pure function `validatePasswordStrength(plain): Result` enforcing length ≥ 12 and ≥ 3 character classes; rejects a small bundled list of common passwords (depends on T025 test failing first)
-- [ ] T038 [US1] Create `backend/src/auth/repositories/users.repo.ts` — `findByEmail`, `insertPending`, `markVerified`, `existsByEmail`; uses Kysely; case-insensitive lookups via `citext` (depends on T031, T033)
-- [ ] T039 [US1] Create `backend/src/auth/repositories/verification.repo.ts` — `insertToken`, `findByTokenHash`, `markUsed`, `invalidateAllForUser` (depends on T032, T033)
-- [ ] T040 [US1] Create `backend/src/auth/services/registration.service.ts` — orchestrates: validate password (T037), hash with bcrypt cost 12, insert pending user, issue + email verification token, write `register` security event; ensures duplicate-email path returns identical timing profile (research D4)
-- [ ] T041 [US1] Create `backend/src/auth/services/verification.service.ts` — `consumeToken` (transactional: validate not-expired+not-used with 60 s leeway, mark used, flip user to active, set `verified_at`); `resendVerification` (idempotent, throttled, generic 202 response per FR-006b)
-- [ ] T042 [US1] Create `backend/src/auth/handlers/register.handler.ts` — parses with Zod schema, calls service, maps to 201/400/409 per contract
-- [ ] T043 [US1] Create `backend/src/auth/handlers/verify.handler.ts` — parses, calls `consumeToken`, maps to 204/400/410; resend handler maps to 202
-- [ ] T044 [US1] Create `backend/src/auth/routes/register.route.ts` and `backend/src/auth/routes/verify.route.ts`; mount on the auth router with per-IP rate-limit middleware (5 req/min/IP for register, 3 req/min/IP for resend)
-- [ ] T045 [US1] Wire registration + verification dependencies into `backend/src/auth/index.ts` composition root
-- [ ] T046 [US1] Run all US1 tests (T023–T029); confirm they now PASS; verify coverage on `services/registration.service.ts` and `services/verification.service.ts` is ≥ 80 % line and branch
+- [X] T031 [P] [US1] Create migration `backend/migrations/001-users.sql` per `data-model.md`: `auth.user_status` enum, `auth.users` table, partial unique index on `lower(email)`, supporting indexes
+- [X] T032 [P] [US1] Create migration `backend/migrations/003-email-verification.sql` per `data-model.md`: `auth.email_verifications` table with FK cascade
+- [X] T033 [P] [US1] Add `users` and `email_verifications` table interfaces to the `DB` type in `backend/src/auth/repositories/db-types.ts`
+- [X] T034 [P] [US1] Create `backend/src/auth/domain/user.ts` — pure types: `User`, `UserStatus`, factory `newPendingUser()` and state-transition functions (no I/O)
+- [X] T035 [P] [US1] Create `backend/src/auth/schemas/register.schema.ts` — Zod schema for the `RegisterRequest` body matching the OpenAPI contract; export inferred TS type
+- [X] T036 [P] [US1] Create `backend/src/auth/schemas/verify.schema.ts` — Zod schemas for `VerifyEmailRequest` and `EmailOnlyRequest`
+- [X] T037 [P] [US1] Create `backend/src/auth/domain/password-policy.ts` — pure function `validatePasswordStrength(plain): Result` enforcing length ≥ 12 and ≥ 3 character classes; rejects a small bundled list of common passwords (depends on T025 test failing first)
+- [X] T038 [US1] Create `backend/src/auth/repositories/users.repo.ts` — `findByEmail`, `insertPending`, `markVerified`, `existsByEmail`; uses Kysely; case-insensitive lookups via `citext` (depends on T031, T033)
+- [X] T039 [US1] Create `backend/src/auth/repositories/verification.repo.ts` — `insertToken`, `findByTokenHash`, `markUsed`, `invalidateAllForUser` (depends on T032, T033)
+- [X] T040 [US1] Create `backend/src/auth/services/registration.service.ts` — orchestrates: validate password (T037), hash with bcrypt cost 12, insert pending user, issue + email verification token, write `register` security event; ensures duplicate-email path returns identical timing profile (research D4)
+- [X] T041 [US1] Create `backend/src/auth/services/verification.service.ts` — `consumeToken` (transactional: validate not-expired+not-used with 60 s leeway, mark used, flip user to active, set `verified_at`); `resendVerification` (idempotent, throttled, generic 202 response per FR-006b)
+- [X] T042 [US1] Create `backend/src/auth/handlers/register.handler.ts` — parses with Zod schema, calls service, maps to 201/400/409 per contract
+- [X] T043 [US1] Create `backend/src/auth/handlers/verify.handler.ts` — parses, calls `consumeToken`, maps to 204/400/410; resend handler maps to 202
+- [X] T044 [US1] Create `backend/src/auth/routes/register.route.ts` and `backend/src/auth/routes/verify.route.ts`; mount on the auth router with per-IP rate-limit middleware (5 req/min/IP for register, 3 req/min/IP for resend)
+- [X] T045 [US1] Wire registration + verification dependencies into `backend/src/auth/index.ts` composition root
+- [X] T046 [US1] Run all US1 tests (T023–T029); confirm they now PASS; verify coverage on `services/registration.service.ts` and `services/verification.service.ts` is ≥ 80 % line and branch
 
 **Checkpoint**: User Story 1 is fully functional and independently demoable per quickstart §"Story 1".
 
