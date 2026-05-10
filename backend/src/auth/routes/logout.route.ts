@@ -2,6 +2,7 @@ import { Router } from 'express';
 import type { LogoutService } from '../services/logout.service.js';
 import type { SessionService } from '../services/session.service.js';
 import { logoutHandler } from '../handlers/logout.handler.js';
+import { asyncHandler } from '../middleware/async-handler.js';
 import { buildRequireSession } from '../middleware/require-session.js';
 import { csrf } from '../middleware/csrf.js';
 
@@ -19,6 +20,6 @@ export function buildLogoutRouter(
   isProduction: boolean,
 ): Router {
   const router = Router();
-  router.post('/logout', buildRequireSession(sessions), csrf, logoutHandler(logout, isProduction));
+  router.post('/logout', buildRequireSession(sessions), csrf, asyncHandler(logoutHandler(logout, isProduction)));
   return router;
 }

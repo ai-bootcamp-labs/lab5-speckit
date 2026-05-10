@@ -46,10 +46,9 @@ export async function startDb(): Promise<DbHarness> {
     }
   }
 
-  /** Tear down container + pool. */
+  /** Tear down container + pool. `db.destroy()` already ends the underlying pg pool. */
   async function stop(): Promise<void> {
     await db.destroy();
-    await pool.end();
     await container.stop();
   }
 

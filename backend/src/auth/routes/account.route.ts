@@ -4,6 +4,7 @@ import type { SessionService } from '../services/session.service.js';
 import { buildRequireSession } from '../middleware/require-session.js';
 import { csrf } from '../middleware/csrf.js';
 import { deleteAccountHandler } from '../handlers/account.handler.js';
+import { asyncHandler } from '../middleware/async-handler.js';
 
 /**
  * Build the account router (`DELETE /account`) mounted behind `requireSession`
@@ -19,6 +20,6 @@ export function buildAccountRouter(
   isProduction: boolean,
 ): Router {
   const router = Router();
-  router.delete('/account', buildRequireSession(sessions), csrf, deleteAccountHandler(service, isProduction));
+  router.delete('/account', buildRequireSession(sessions), csrf, asyncHandler(deleteAccountHandler(service, isProduction)));
   return router;
 }

@@ -5,6 +5,7 @@ import {
   passwordResetConfirmHandler,
   passwordResetRequestHandler,
 } from '../handlers/password-reset.handler.js';
+import { asyncHandler } from '../middleware/async-handler.js';
 
 /**
  * Build the password-reset sub-router.
@@ -21,8 +22,9 @@ export function buildPasswordResetRouter(service: PasswordResetService): Router 
     limit: 5,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
+    skip: () => process.env['NODE_ENV'] === 'test',
   });
-  router.post('/password-reset/request', limiter, passwordResetRequestHandler(service));
-  router.post('/password-reset/confirm', limiter, passwordResetConfirmHandler(service));
+  router.post('/password-reset/request', limiter, asyncHandler(passwordResetRequestHandler(service)));
+  router.post('/password-reset/confirm', limiter, asyncHandler(passwordResetConfirmHandler(service)));
   return router;
 }

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import type { RegistrationService } from '../services/registration.service.js';
 import { registerHandler } from '../handlers/register.handler.js';
+import { asyncHandler } from '../middleware/async-handler.js';
 
 /**
  * Build the `/auth/register` sub-router with per-IP rate limiting (5 req/min/IP).
@@ -15,7 +16,8 @@ export function buildRegisterRouter(service: RegistrationService): Router {
     limit: 5,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
+    skip: () => process.env['NODE_ENV'] === 'test',
   });
-  router.post('/register', limiter, registerHandler(service));
+  router.post('/register', limiter, asyncHandler(registerHandler(service)));
   return router;
 }

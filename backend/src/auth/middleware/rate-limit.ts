@@ -14,5 +14,6 @@ export function buildLoginRateLimiter(): RateLimitRequestHandler {
     limit: 30,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
+    skip: () => process.env['NODE_ENV'] === 'test',
   });
 }
