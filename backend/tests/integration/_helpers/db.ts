@@ -1,4 +1,4 @@
-import { PostgreSqlContainer, type StartedPostgreSqlContainer } from 'testcontainers';
+import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { Kysely, PostgresDialect } from 'kysely';
 import pg from 'pg';
 import { readdir, readFile } from 'node:fs/promises';

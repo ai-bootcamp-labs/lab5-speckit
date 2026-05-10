@@ -16,8 +16,8 @@ export interface UsersTable {
   verified_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
   deleted_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
   anonymized_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
-  created_at: Generated<Timestamp>;
-  updated_at: Generated<Timestamp>;
+  created_at: Timestamp;
+  updated_at: Timestamp;
 }
 
 /**
@@ -29,5 +29,5 @@ export interface EmailVerificationsTable {
   token_hash: string;
   expires_at: Timestamp;
   used_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
-  created_at: Generated<Timestamp>;
+  created_at: Timestamp;
 }

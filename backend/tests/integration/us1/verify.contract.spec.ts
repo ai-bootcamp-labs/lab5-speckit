@@ -44,8 +44,7 @@ describe('POST /auth/verify-email — contract', () => {
     await request(app)
       .post('/auth/register')
       .send({ email: 'v1@example.com', password: 'Str0ng!Passw0rd-XYZ' });
-    const captured = email.sent.findLast?.((m) => m.to === 'v1@example.com')
-      ?? email.sent.filter((m) => m.to === 'v1@example.com').slice(-1)[0];
+    const captured = email.sent.filter((m) => m.to === 'v1@example.com').slice(-1)[0];
     expect(captured).toBeDefined();
     const res = await request(app).post('/auth/verify-email').send({ token: captured!.token });
     expect(res.status).toBe(204);

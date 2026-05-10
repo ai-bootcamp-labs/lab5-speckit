@@ -22,7 +22,7 @@ export interface SessionsTable {
   csrf_secret: string;
   ip: ColumnType<string | null, string | null | undefined, string | null>;
   user_agent: ColumnType<string | null, string | null | undefined, string | null>;
-  issued_at: Generated<Timestamp>;
+  issued_at: Timestamp;
   expires_at: Timestamp;
   revoked_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
   revoke_reason: ColumnType<RevokeReason | null, RevokeReason | null | undefined, RevokeReason | null>;

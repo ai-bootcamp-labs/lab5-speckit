@@ -6,7 +6,7 @@
  *
  * Usage: `npm run test:load -- --url http://localhost:3000`
  */
-import autocannon, { type Result } from 'autocannon';
+import autocannon, { type Client, type Result } from 'autocannon';
 
 interface Args {
   url: string;
@@ -40,11 +40,12 @@ function parseArgs(argv: string[]): Args {
 async function run(title: string, opts: autocannon.Options): Promise<Result> {
   // eslint-disable-next-line no-console -- intentional CLI output
   console.log(`\n=== ${title} ===`);
-  const inst = autocannon(opts);
-  autocannon.track(inst, { renderProgressBar: true });
   return new Promise<Result>((resolve, reject) => {
-    inst.on('done', resolve);
-    inst.on('error', reject);
+    const inst = autocannon(opts, (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+    autocannon.track(inst, { renderProgressBar: true });
   });
 }
 
@@ -69,7 +70,7 @@ async function main(): Promise<void> {
     url: `${args.url}/auth/register`,
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    setupClient: (client) => {
+    setupClient: (client: Client) => {
       // Each connection sends a different body so we never collide on email.
       client.setBody(
         JSON.stringify({
