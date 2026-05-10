@@ -1,4 +1,5 @@
 import type { EmailVerificationsTable, UsersTable } from './tables/us1.tables.js';
+import type { SessionsTable } from './tables/us2.tables.js';
 
 /**
  * Aggregate Kysely DB schema. Tables are added by user-story phases:
@@ -10,4 +11,5 @@ import type { EmailVerificationsTable, UsersTable } from './tables/us1.tables.js
 export interface DB {
   'auth.users': UsersTable;
   'auth.email_verifications': EmailVerificationsTable;
+  'auth.sessions': SessionsTable;
 }

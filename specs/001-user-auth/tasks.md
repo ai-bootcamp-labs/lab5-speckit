@@ -113,33 +113,33 @@ Web service layout from `plan.md`. All source paths begin with `backend/`.
 
 ### Tests for User Story 2 ⚠️ Write FIRST, ensure they FAIL
 
-- [ ] T047 [P] [US2] Contract tests for `POST /auth/login` and `GET /auth/session` in `backend/tests/integration/us2/login.contract.spec.ts` — covers 200/401/403/423/429 status codes and cookie attributes (`HttpOnly`, `Secure`, `SameSite=Lax`)
-- [ ] T048 [P] [US2] Unit test for `LoginService`: success path issues a session row + signed JWT carrying only `{sub, sid, iat, exp}`; pending account → `AccountPendingError`; wrong password → `InvalidCredentialsError`; unknown email → `InvalidCredentialsError` (identical error class for non-enumeration); enforces timing parity within 100 ms (mock bcrypt) — `backend/tests/unit/us2/login.service.spec.ts`
-- [ ] T049 [P] [US2] Unit test for `ThrottleService` per Clarification Q3: 5 fails/account/5 min → 15 min lockout; 20 fails/IP/5 min → 15 min IP throttle; success resets account counter; window expiry resets — `backend/tests/unit/us2/throttle.service.spec.ts`
-- [ ] T050 [P] [US2] Unit test for `SessionService.issue` and `SessionService.validate`: signs JWT, persists row, validates signature + DB lookup + not-revoked + not-expired (with 60 s leeway), rejects revoked sessions in `backend/tests/unit/us2/session.service.spec.ts`
-- [ ] T051 [P] [US2] Unit test for `requireSession` middleware: extracts cookie, calls validate, attaches `req.user`, rejects with 401 on missing/invalid; `csrf` middleware: rejects when header ≠ cookie or absent on state-changing methods (research D11) in `backend/tests/unit/us2/middleware.spec.ts`
-- [ ] T052 [P] [US2] Integration test for `sessions` repo (insert, find by id, revoke, revoke-all-for-user) in `backend/tests/integration/us2/sessions-repo.spec.ts`
-- [ ] T053 [P] [US2] E2E test of Story 2 acceptance scenarios 1–5 in `backend/tests/e2e/us2-login.e2e.spec.ts`
-- [ ] T054 [US2] Run the new tests; confirm they all FAIL for the right reasons
+- [X] T047 [P] [US2] Contract tests for `POST /auth/login` and `GET /auth/session` in `backend/tests/integration/us2/login.contract.spec.ts` — covers 200/401/403/423/429 status codes and cookie attributes (`HttpOnly`, `Secure`, `SameSite=Lax`)
+- [X] T048 [P] [US2] Unit test for `LoginService`: success path issues a session row + signed JWT carrying only `{sub, sid, iat, exp}`; pending account → `AccountPendingError`; wrong password → `InvalidCredentialsError`; unknown email → `InvalidCredentialsError` (identical error class for non-enumeration); enforces timing parity within 100 ms (mock bcrypt) — `backend/tests/unit/us2/login.service.spec.ts`
+- [X] T049 [P] [US2] Unit test for `ThrottleService` per Clarification Q3: 5 fails/account/5 min → 15 min lockout; 20 fails/IP/5 min → 15 min IP throttle; success resets account counter; window expiry resets — `backend/tests/unit/us2/throttle.service.spec.ts`
+- [X] T050 [P] [US2] Unit test for `SessionService.issue` and `SessionService.validate`: signs JWT, persists row, validates signature + DB lookup + not-revoked + not-expired (with 60 s leeway), rejects revoked sessions in `backend/tests/unit/us2/session.service.spec.ts`
+- [X] T051 [P] [US2] Unit test for `requireSession` middleware: extracts cookie, calls validate, attaches `req.user`, rejects with 401 on missing/invalid; `csrf` middleware: rejects when header ≠ cookie or absent on state-changing methods (research D11) in `backend/tests/unit/us2/middleware.spec.ts`
+- [X] T052 [P] [US2] Integration test for `sessions` repo (insert, find by id, revoke, revoke-all-for-user) in `backend/tests/integration/us2/sessions-repo.spec.ts`
+- [X] T053 [P] [US2] E2E test of Story 2 acceptance scenarios 1–5 in `backend/tests/e2e/us2-login.e2e.spec.ts`
+- [X] T054 [US2] Run the new tests; confirm they all FAIL for the right reasons
 
 ### Implementation for User Story 2
 
-- [ ] T055 [P] [US2] Create migration `backend/migrations/002-sessions.sql` per `data-model.md`: `auth.revoke_reason` enum, `auth.sessions` table with `csrf_secret`, indexes
-- [ ] T056 [P] [US2] Add `sessions` to `DB` type interface in `backend/src/auth/repositories/db-types.ts`
-- [ ] T057 [P] [US2] Create `backend/src/auth/domain/session.ts` — pure types: `Session`, `IssuedSession`, helper `isLive(session, now, leewaySec)`
-- [ ] T058 [P] [US2] Create `backend/src/auth/domain/token.ts` — JWT signing/verification helpers using HS256 with secret from config; payload typed as `{sub: UserId, sid: SessionId, iat, exp}` (research D5)
-- [ ] T059 [P] [US2] Create `backend/src/auth/schemas/login.schema.ts` — Zod schema for `LoginRequest`
-- [ ] T060 [US2] Create `backend/src/auth/repositories/sessions.repo.ts` — `insert`, `findById`, `revoke`, `revokeAllForUser(userId, reason)`, `purgeExpired` (depends on T055, T056)
-- [ ] T061 [P] [US2] Create `backend/src/auth/services/throttle.service.ts` — implements Clarification Q3 thresholds; persists counters in Postgres or via `express-rate-limit` Postgres store; exposes `recordFailure`, `recordSuccess`, `assertNotLocked` (research D6)
-- [ ] T062 [US2] Create `backend/src/auth/services/session.service.ts` — `issue(userId, ip, ua) → {jwt, csrfCookie, expiresAt}`; `validate(jwt) → User` performing signature check + DB lookup + revocation + expiry+leeway; `revoke(sessionId, reason)` (depends on T058, T060)
-- [ ] T063 [US2] Create `backend/src/auth/services/login.service.ts` — orchestrates: throttle preflight, fetch user, reject if pending, bcrypt compare, on success issue session + reset throttle counter + write `login success` audit event, on failure record audit event with reason and increment throttle (depends on T061, T062)
-- [ ] T064 [P] [US2] Create `backend/src/auth/middleware/require-session.ts` — extracts `auth_session` cookie, calls `SessionService.validate`, attaches `req.session` and `req.user`; emits 401 via `AuthError`
-- [ ] T065 [P] [US2] Create `backend/src/auth/middleware/csrf.ts` — double-submit-cookie verification on POST/PUT/PATCH/DELETE; binds to `session.csrfSecret`
-- [ ] T066 [P] [US2] Create `backend/src/auth/middleware/rate-limit.ts` — wires `express-rate-limit` to the throttle service for the login endpoint
-- [ ] T067 [US2] Create `backend/src/auth/handlers/login.handler.ts` and `backend/src/auth/handlers/session.handler.ts` (`GET /auth/session`); set both `auth_session` (HttpOnly, Secure, SameSite=Lax, Max-Age=86400) and `csrf_token` cookies on login response
-- [ ] T068 [US2] Create `backend/src/auth/routes/login.route.ts` and a `session.route.ts` mounting `GET /auth/session` behind `requireSession`; register on auth router
-- [ ] T069 [US2] Wire US2 dependencies into `backend/src/auth/index.ts` composition root
-- [ ] T070 [US2] Run all US1 + US2 tests; confirm green; coverage on `services/{login,session,throttle}.service.ts` ≥ 80 %
+- [X] T055 [P] [US2] Create migration `backend/migrations/002-sessions.sql` per `data-model.md`: `auth.revoke_reason` enum, `auth.sessions` table with `csrf_secret`, indexes
+- [X] T056 [P] [US2] Add `sessions` to `DB` type interface in `backend/src/auth/repositories/db-types.ts`
+- [X] T057 [P] [US2] Create `backend/src/auth/domain/session.ts` — pure types: `Session`, `IssuedSession`, helper `isLive(session, now, leewaySec)`
+- [X] T058 [P] [US2] Create `backend/src/auth/domain/token.ts` — JWT signing/verification helpers using HS256 with secret from config; payload typed as `{sub: UserId, sid: SessionId, iat, exp}` (research D5)
+- [X] T059 [P] [US2] Create `backend/src/auth/schemas/login.schema.ts` — Zod schema for `LoginRequest`
+- [X] T060 [US2] Create `backend/src/auth/repositories/sessions.repo.ts` — `insert`, `findById`, `revoke`, `revokeAllForUser(userId, reason)`, `purgeExpired` (depends on T055, T056)
+- [X] T061 [P] [US2] Create `backend/src/auth/services/throttle.service.ts` — implements Clarification Q3 thresholds; persists counters in Postgres or via `express-rate-limit` Postgres store; exposes `recordFailure`, `recordSuccess`, `assertNotLocked` (research D6)
+- [X] T062 [US2] Create `backend/src/auth/services/session.service.ts` — `issue(userId, ip, ua) → {jwt, csrfCookie, expiresAt}`; `validate(jwt) → User` performing signature check + DB lookup + revocation + expiry+leeway; `revoke(sessionId, reason)` (depends on T058, T060)
+- [X] T063 [US2] Create `backend/src/auth/services/login.service.ts` — orchestrates: throttle preflight, fetch user, reject if pending, bcrypt compare, on success issue session + reset throttle counter + write `login success` audit event, on failure record audit event with reason and increment throttle (depends on T061, T062)
+- [X] T064 [P] [US2] Create `backend/src/auth/middleware/require-session.ts` — extracts `auth_session` cookie, calls `SessionService.validate`, attaches `req.session` and `req.user`; emits 401 via `AuthError`
+- [X] T065 [P] [US2] Create `backend/src/auth/middleware/csrf.ts` — double-submit-cookie verification on POST/PUT/PATCH/DELETE; binds to `session.csrfSecret`
+- [X] T066 [P] [US2] Create `backend/src/auth/middleware/rate-limit.ts` — wires `express-rate-limit` to the throttle service for the login endpoint
+- [X] T067 [US2] Create `backend/src/auth/handlers/login.handler.ts` and `backend/src/auth/handlers/session.handler.ts` (`GET /auth/session`); set both `auth_session` (HttpOnly, Secure, SameSite=Lax, Max-Age=86400) and `csrf_token` cookies on login response
+- [X] T068 [US2] Create `backend/src/auth/routes/login.route.ts` and a `session.route.ts` mounting `GET /auth/session` behind `requireSession`; register on auth router
+- [X] T069 [US2] Wire US2 dependencies into `backend/src/auth/index.ts` composition root
+- [X] T070 [US2] Run all US1 + US2 tests; confirm green; coverage on `services/{login,session,throttle}.service.ts` ≥ 80 %
 
 **Checkpoint**: MVP complete — Stories 1 and 2 deliver the minimum viable feature.
 
